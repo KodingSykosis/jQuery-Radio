@@ -1,0 +1,26 @@
+/*csslint box-sizing:false*/
+
+.ui-radio-outer {
+    border: 0.12em solid #292929;
+    background: transparent;
+}
+
+.ui-radio-outer,
+.ui-radio-outer .ui-radio-inner {
+    display: inline-block;
+    border-radius: 0.5em;
+    box-sizing: border-box;
+    width: 1em;
+    height: 1em;
+    font-size: 100%;
+}
+
+.ui-radio-outer .ui-radio-inner {
+    font-size: 60%;
+    float: left;
+    margin: 0.25em;
+}
+
+.ui-radio-checked .ui-radio-inner {
+    background: #3C3C3C;
+}
