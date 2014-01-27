@@ -103,11 +103,11 @@
                 this.element
                     .find(this.options['label']);
 
-
             this.element
                 .hide()
                 .watch('disabled', $.proxy(this._onStateChanged, this))
-                .wrap('<div>');
+                .add(this.label)
+                .wrapAll('<div>');
 
             this._clsOuter = this.baseClass + '-outer';
             this._clsChecked = this.baseClass + '-checked';
@@ -120,9 +120,17 @@
                     .addClass(this._clsOuter)
                     .on('click', $.proxy(this._onOuterClicked, this));
 
-            this.group =
-                this.element
-                    .prop('name');
+            this.inner = $('<div>', {
+                'class': this.baseClass,
+                'prependTo': this.outer
+            });
+
+            if (this.element.prop('type') === 'radio') {
+                this.group = '[name="' +
+                    this.element
+                        .prop('name') +
+                    '"]';
+            }
 
             this.element
                 .data('setState', $.proxy(this.checked, this));
@@ -142,30 +150,35 @@
         **     Public methods
         ***********************************/
 
+        toggle: function() {
+            this.checked(!this.checked());
+        },
+
         checked: function(isChecked) {
             if (typeof isChecked === 'boolean') {
-                this.outer
+                this.inner
                     .toggleClass(this._clsChecked, isChecked);
+
+                this.element
+                    .prop('checked', isChecked);
 
                 this.element
                     .change();
 
-                if (isChecked) {
-                    var selector = '.' + this._clsChecked + ' [name="' + this.group + '"]';
-                    var fullWidgetName = this.widgetFullName;
+                if (isChecked && this.group) {
+                    var selector = '.' + this._clsChecked + ' ~ ' + this.group;
                     $(selector).not(this.element)
                                [this.widgetName]('checked', false);
                 }
             }
 
-            return this.outer.is('.' + this._clsChecked);
+            return this.inner.is('.' + this._clsChecked);
         },
 
         disable: function() {
             this._super();
 
             this.outer
-                .add(this.label)
                 .addClass('ui-state-disabled');
         },
 
@@ -173,7 +186,6 @@
             this._super();
 
             this.outer
-                .add(this.label)
                 .removeClass('ui-state-disabled');
         },
 
@@ -193,8 +205,13 @@
             }
         },
 
-        _onOuterClicked: function() {
-            this.checked(true);
+        _onOuterClicked: function () {
+            if (this.outer.is('.ui-state-disabled')) return;
+            if (this.group) {
+                this.checked(true);
+            } else {
+                this.toggle();
+            }
         }
     });
 })(jQuery);
