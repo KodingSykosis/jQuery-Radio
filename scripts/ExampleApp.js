@@ -28,5 +28,6 @@
 
 
         $('[type="radio"]').radio();
+        $('[type="checkbox"]').checkbox();
     });
 })(jQuery);

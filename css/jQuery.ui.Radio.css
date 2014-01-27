@@ -1,26 +1,37 @@
 /*csslint box-sizing:false*/
 
-.ui-radio-outer {
-    border: 0.12em solid #292929;
-    background: transparent;
+/* Borrowed from https://github.com/designmodo/Flat-UI */
+@font-face {
+  font-family: 'Flat-UI-Icons';
+  src: url('../fonts/Flat-UI-Icons.eot');
+  src: url('../fonts/Flat-UI-Icons.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/Flat-UI-Icons.woff') format('woff'),
+    url('../fonts/Flat-UI-Icons.ttf') format('truetype'),
+    url('../fonts/Flat-UI-Icons.svg#Flat-UI-Icons') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.ui-radio-outer:before {
+  content: "\e02b";
+}
+.ui-radio-checked:before {
+  content: "\e032";
+}
+.ui-checkbox-outer:before {
+  content: "\e033";
+}
+.ui-checkbox-checked:before {
+  content: "\e034";
 }
 
 .ui-radio-outer,
-.ui-radio-outer .ui-radio-inner {
+.ui-checkbox-outer {
+    background: transparent;
     display: inline-block;
-    border-radius: 0.5em;
     box-sizing: border-box;
     width: 1em;
     height: 1em;
     font-size: 100%;
-}
-
-.ui-radio-outer .ui-radio-inner {
-    font-size: 60%;
-    float: left;
-    margin: 0.25em;
-}
-
-.ui-radio-checked .ui-radio-inner {
-    background: #3C3C3C;
+    font-family: 'Flat-UI-Icons';
 }

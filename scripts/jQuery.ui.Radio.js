@@ -68,46 +68,71 @@
         return orgHeight.call(this, height - paddingVert);
     };
 
+    $.fn.checked = function(isChecked) {
+        if (typeof isChecked === 'boolean') {
+            return this.each(function() {
+                var elem = $(this);
+
+                //Why would you do such a thing
+                if (!elem.is('[type="checkbox"],[type="radio"]')) {
+                    return;
+                }
+
+                elem.prop('checked', isChecked);
+
+                var stateMgr = elem.data('setState');
+                if (stateMgr) {
+                    stateMgr(isChecked);
+                }
+            });
+        }
+    };
 
     $.widget("kodingsykosis.radio", {
         options: {
+            label: '~ label'
         },
+        baseClass: 'ui-radio',
 
 
         /***********************************
         **     jQueryUI Widget Interface
         ***********************************/
         _create: function () {
+            this.label =
+                this.element
+                    .find(this.options['label']);
+
+
             this.element
                 .hide()
-                .watch('checked', $.proxy(this._onSourceValueChanged, this))
+                .watch('disabled', $.proxy(this._onStateChanged, this))
                 .wrap('<div>');
+
+            this._clsOuter = this.baseClass + '-outer';
+            this._clsChecked = this.baseClass + '-checked';
 
 
             //This should add an outer & inner circles
             this.outer =
                 this.element
                     .parent()
-                    .addClass('ui-radio-outer')
-                    .on('click.radio', $.proxy(this._onOuterClicked, this));
-
-            this.inner =
-                this.outer
-                    .append('<em class="ui-radio-inner"></em>');
+                    .addClass(this._clsOuter)
+                    .on('click', $.proxy(this._onOuterClicked, this));
 
             this.group =
                 this.element
                     .prop('name');
+
+            this.element
+                .data('setState', $.proxy(this.checked, this));
         },
 
         _init: function () {
-            this._onSourceValueChanged();
+            this.checked(this.element.prop('checked') === true);
         },
 
         _destroy: function () {
-            this.inner
-                .remove();
-
             this.element
                 .unwrap()
                 .show();
@@ -120,20 +145,36 @@
         checked: function(isChecked) {
             if (typeof isChecked === 'boolean') {
                 this.outer
-                    .toggleClass('ui-radio-checked', isChecked);
+                    .toggleClass(this._clsChecked, isChecked);
 
                 this.element
                     .change();
 
                 if (isChecked) {
-                    var selector = '.ui-radio-checked [name="' + this.group + '"]';
+                    var selector = '.' + this._clsChecked + ' [name="' + this.group + '"]';
                     var fullWidgetName = this.widgetFullName;
                     $(selector).not(this.element)
-                               .radio('checked', false);
+                               [this.widgetName]('checked', false);
                 }
             }
 
-            return this.outer.is('.ui-radio-checked');
+            return this.outer.is('.' + this._clsChecked);
+        },
+
+        disable: function() {
+            this._super();
+
+            this.outer
+                .add(this.label)
+                .addClass('ui-state-disabled');
+        },
+
+        enable: function() {
+            this._super();
+
+            this.outer
+                .add(this.label)
+                .removeClass('ui-state-disabled');
         },
 
         /***********************************
@@ -144,8 +185,12 @@
         **     Event Delegates
         ***********************************/
 
-        _onSourceValueChanged: function() {
-            this.checked(this.element.val() === true);
+        _onStateChanged: function() {
+            if (this.element.prop('disabled')) {
+                this.disable();
+            } else {
+                this.enable();
+            }
         },
 
         _onOuterClicked: function() {
